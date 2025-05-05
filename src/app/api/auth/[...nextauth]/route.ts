@@ -23,6 +23,7 @@ export const authOptions: NextAuthOptions = {
         token.email = profile.email;
         token.name = profile.name;
         token.picture = profile.image as string;
+        token.accessToken = account.access_token;
       }
       return token;
     },
@@ -32,6 +33,7 @@ export const authOptions: NextAuthOptions = {
         name: token.name,
         email: token.email as string,
         image: token.picture as string,
+        accessToken: token.accessToken,
       };
       return session;
     },

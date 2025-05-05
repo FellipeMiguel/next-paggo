@@ -12,7 +12,7 @@ export function AuthButton() {
   if (session) {
     return (
       <button
-        className="bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition"
+        className="bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition cursor-pointer"
         onClick={() => signOut()}
       >
         Logout
@@ -22,7 +22,7 @@ export function AuthButton() {
 
   return (
     <button
-      className="bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition"
+      className="bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition cursor-pointer"
       onClick={() => signIn("google")}
     >
       Login com Google

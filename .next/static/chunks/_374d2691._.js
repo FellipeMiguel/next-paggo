@@ -29,7 +29,7 @@ function AuthButton() {
     }
     if (session) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-            className: "bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition",
+            className: "bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition cursor-pointer",
             onClick: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["signOut"])(),
             children: "Logout"
         }, void 0, false, {
@@ -39,7 +39,7 @@ function AuthButton() {
         }, this);
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-        className: "bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition",
+        className: "bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition cursor-pointer",
         onClick: ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["signIn"])("google"),
         children: "Login com Google"
     }, void 0, false, {

@@ -192,6 +192,7 @@ const authOptions = {
                 token.email = profile.email;
                 token.name = profile.name;
                 token.picture = profile.image;
+                token.accessToken = account.access_token;
             }
             return token;
         },
@@ -200,7 +201,8 @@ const authOptions = {
                 id: token.id,
                 name: token.name,
                 email: token.email,
-                image: token.picture
+                image: token.picture,
+                accessToken: token.accessToken
             };
             return session;
         }
