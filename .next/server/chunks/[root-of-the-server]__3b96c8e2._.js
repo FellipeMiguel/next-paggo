@@ -138,7 +138,6 @@ module.exports = mod;
 
 var { g: global, __dirname } = __turbopack_context__;
 {
-// crie um arquivo src/config/env.ts
 __turbopack_context__.s({
     "GOOGLE_CLIENT_ID": (()=>GOOGLE_CLIENT_ID),
     "GOOGLE_CLIENT_SECRET": (()=>GOOGLE_CLIENT_SECRET),
@@ -163,6 +162,7 @@ const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? (()=>{
 
 var { g: global, __dirname } = __turbopack_context__;
 {
+// pages/api/auth/[...nextauth].ts (ou no local onde o NextAuth é configurado)
 __turbopack_context__.s({
     "GET": (()=>handler),
     "POST": (()=>handler),
@@ -170,7 +170,13 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next-auth/index.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$providers$2f$google$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next-auth/providers/google.js [app-route] (ecmascript)");
+(()=>{
+    const e = new Error("Cannot find module 'jsonwebtoken'");
+    e.code = 'MODULE_NOT_FOUND';
+    throw e;
+})();
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$config$2f$env$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/config/env.ts [app-route] (ecmascript)");
+;
 ;
 ;
 ;
@@ -191,8 +197,15 @@ const authOptions = {
                 token.id = profile.sub;
                 token.email = profile.email;
                 token.name = profile.name;
-                token.picture = profile.image;
-                token.accessToken = account.access_token;
+                token.image = profile.image;
+                token.internalToken = jwt.sign({
+                    sub: profile.sub,
+                    email: profile.email,
+                    name: profile.name,
+                    image: profile.image
+                }, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$config$2f$env$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NEXTAUTH_SECRET"], {
+                    expiresIn: "1h"
+                });
             }
             return token;
         },
@@ -201,8 +214,8 @@ const authOptions = {
                 id: token.id,
                 name: token.name,
                 email: token.email,
-                image: token.picture,
-                accessToken: token.accessToken
+                image: token.image,
+                accessToken: token.internalToken
             };
             return session;
         }

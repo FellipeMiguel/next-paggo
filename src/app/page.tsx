@@ -1,15 +1,27 @@
 "use client";
 
-import { AuthButton } from "@/components/AuthButton";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { AuthButton } from "@/components/AuthButton";
 
 export default function HomePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
+  // Redireciona para a dashboard após a renderização caso a sessão exista.
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
+  if (status === "loading") {
+    return <p>Carregando...</p>;
+  }
+
+  // Se houver sessão, o redirecionamento está sendo gerenciado no useEffect
   if (session) {
-    router.push("/dashboard");
     return null;
   }
 

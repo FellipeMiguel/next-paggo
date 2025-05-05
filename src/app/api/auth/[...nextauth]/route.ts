@@ -1,11 +1,8 @@
-import NextAuth, { type NextAuthOptions } from "next-auth";
+// pages/api/auth/[...nextauth].ts (ou no local onde o NextAuth é configurado)
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-
-import {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  NEXTAUTH_SECRET,
-} from "@/config/env";
+import jwt from "jsonwebtoken";
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET } from "@/config/env";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,8 +19,17 @@ export const authOptions: NextAuthOptions = {
         token.id = profile.sub;
         token.email = profile.email;
         token.name = profile.name;
-        token.picture = profile.image as string;
-        token.accessToken = account.access_token;
+        token.image = profile.image as string;
+        token.internalToken = jwt.sign(
+          {
+            sub: profile.sub,
+            email: profile.email,
+            name: profile.name,
+            image: profile.image,
+          },
+          NEXTAUTH_SECRET,
+          { expiresIn: "1h" }
+        );
       }
       return token;
     },
@@ -32,8 +38,8 @@ export const authOptions: NextAuthOptions = {
         id: token.id as string,
         name: token.name,
         email: token.email as string,
-        image: token.picture as string,
-        accessToken: token.accessToken,
+        image: token.image as string,
+        accessToken: token.internalToken as string,
       };
       return session;
     },

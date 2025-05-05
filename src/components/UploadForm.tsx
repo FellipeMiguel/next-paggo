@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
-export function UploadForm() {
+type UploadFormProps = {
+  onUploadSuccess?: () => void;
+};
+
+export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<
-    "idle" | "uploading" | "success" | "error"
-  >("idle");
+  const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -30,6 +32,7 @@ export function UploadForm() {
       const token = session?.user?.accessToken;
       if (!token) {
         setError("Token de acesso não encontrado.");
+        signOut();
         return;
       }
 
@@ -51,28 +54,22 @@ export function UploadForm() {
 
       setStatus("success");
       setFile(null);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Erro ao enviar arquivo.");
-      } else {
-        setError("Erro desconhecido ao enviar arquivo.");
-      }
+      onUploadSuccess && onUploadSuccess();
+    } catch (err: any) {
+      setError(err.message || "Erro ao enviar arquivo.");
       setStatus("error");
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="mb-6 p-4 bg-[#393E46] rounded">
-      <label className="block mb-2 text-[#DFD0B8]">
-        Selecione imagem (JPG/PNG ≤5 MB)
-      </label>
+      <label className="block mb-2 text-[#DFD0B8]">Selecione imagem (JPG/PNG ≤5 MB)</label>
       <input
         type="file"
         accept=".jpg,.jpeg,.png"
         onChange={handleFileChange}
         className="block mb-4 w-full text-sm text-[#948979]"
       />
-
       <button
         type="submit"
         disabled={status === "uploading"}
@@ -80,13 +77,8 @@ export function UploadForm() {
       >
         {status === "uploading" ? "Enviando..." : "Enviar"}
       </button>
-
-      {status === "success" && (
-        <p className="mt-3 text-green-400">Upload realizado com sucesso!</p>
-      )}
-      {status === "error" && error && (
-        <p className="mt-3 text-red-400">Erro: {error}</p>
-      )}
+      {status === "success" && (<p className="mt-3 text-green-400">Upload realizado com sucesso!</p>)}
+      {status === "error" && error && (<p className="mt-3 text-red-400">Erro: {error}</p>)}
     </form>
   );
 }
