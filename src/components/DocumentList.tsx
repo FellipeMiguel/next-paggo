@@ -152,7 +152,7 @@ export function DocumentList({ refreshKey }: DocumentListProps) {
 
   return (
     <div className="mt-6">
-      <h2 className="text-2xl font-bold mb-4">Histórico de Documentos</h2>
+      <h2 className="text-2xl font-bold mb-4">Seus Documentos</h2>
 
       <div className="mb-4">
         <input

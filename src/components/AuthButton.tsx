@@ -15,7 +15,7 @@ export function AuthButton() {
         className="bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition cursor-pointer"
         onClick={() => signOut()}
       >
-        Logout
+        Sair
       </button>
     );
   }
@@ -25,7 +25,7 @@ export function AuthButton() {
       className="bg-[#DFD0B8] text-[#222831] font-semibold px-6 py-3 rounded hover:bg-[#cfc0a6] transition cursor-pointer"
       onClick={() => signIn("google")}
     >
-      Login com Google
+      Entrar com Google
     </button>
   );
 }
