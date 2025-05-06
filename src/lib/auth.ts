@@ -1,4 +1,3 @@
-// src/lib/auth.ts
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
@@ -20,6 +19,9 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
+        if (!profile.sub) {
+          throw new Error("profile.sub é indefinido.");
+        }
         token.id = profile.sub;
         token.email = profile.email;
         token.name = profile.name;
