@@ -6,12 +6,17 @@ import { ExplainSection } from "./ExplainSection";
 
 interface Document {
   id: number;
+  name: string;
   fileUrl: string;
   text: string;
   createdAt: string;
 }
 
-export function DocumentList() {
+type DocumentListProps = {
+  refreshKey: number;
+};
+
+export function DocumentList({ refreshKey }: DocumentListProps) {
   const { data: session } = useSession();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,15 +50,10 @@ export function DocumentList() {
     }
 
     fetchDocuments();
-  }, [session]);
+  }, [session, refreshKey]);
 
-  if (loading) {
-    return <p>Carregando documentos...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-400">Erro: {error}</p>;
-  }
+  if (loading) return <p>Carregando documentos...</p>;
+  if (error) return <p className="text-red-400">Erro: {error}</p>;
 
   return (
     <div className="mt-6">
@@ -61,14 +61,15 @@ export function DocumentList() {
       {documents.length === 0 ? (
         <p>Nenhum documento encontrado.</p>
       ) : (
-        <ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {documents.map((doc) => (
-            <li key={doc.id} className="mb-4 p-4 border rounded bg-[#393E46]">
+            <div key={doc.id} className="w-full p-6 border rounded bg-[#393E46]">
               <p>
-                <strong>ID:</strong> {doc.id}
+                <strong>Nome:</strong> {doc.name || "Sem nome"}
               </p>
               <p>
-                <strong>Data:</strong> {new Date(doc.createdAt).toLocaleString()}
+                <strong>Data:</strong>{" "}
+                {new Date(doc.createdAt).toLocaleString()}
               </p>
               <p>
                 <strong>Arquivo:</strong> {doc.fileUrl}
@@ -78,9 +79,9 @@ export function DocumentList() {
                 <br /> {doc.text}
               </p>
               <ExplainSection docId={doc.id} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

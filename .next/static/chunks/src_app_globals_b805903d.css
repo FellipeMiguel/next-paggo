@@ -26,8 +26,10 @@
   :root, :host {
     --color-red-400: oklch(70.4% .191 22.216);
     --color-green-400: oklch(79.2% .209 151.711);
+    --color-white: #fff;
     --spacing: .25rem;
-    --container-3xl: 48rem;
+    --container-xs: 20rem;
+    --container-5xl: 64rem;
     --text-sm: .875rem;
     --text-sm--line-height: calc(1.25 / .875);
     --text-lg: 1.125rem;
@@ -237,6 +239,10 @@
     margin-inline: auto;
   }
 
+  .mt-1 {
+    margin-top: calc(var(--spacing) * 1);
+  }
+
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
@@ -273,20 +279,48 @@
     display: flex;
   }
 
+  .grid {
+    display: grid;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .h-48 {
+    height: calc(var(--spacing) * 48);
+  }
+
+  .h-60 {
+    height: calc(var(--spacing) * 60);
+  }
+
   .min-h-screen {
     min-height: 100vh;
+  }
+
+  .w-48 {
+    width: calc(var(--spacing) * 48);
   }
 
   .w-full {
     width: 100%;
   }
 
-  .max-w-3xl {
-    max-width: var(--container-3xl);
+  .max-w-5xl {
+    max-width: var(--container-5xl);
+  }
+
+  .max-w-xs {
+    max-width: var(--container-xs);
   }
 
   .cursor-pointer {
     cursor: pointer;
+  }
+
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 
   .items-center {
@@ -301,6 +335,14 @@
     justify-content: center;
   }
 
+  .gap-6 {
+    gap: calc(var(--spacing) * 6);
+  }
+
+  .overflow-y-auto {
+    overflow-y: auto;
+  }
+
   .rounded {
     border-radius: .25rem;
   }
@@ -312,6 +354,10 @@
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
+  }
+
+  .bg-\[\#00ADB5\] {
+    background-color: #00adb5;
   }
 
   .bg-\[\#393E46\] {
@@ -330,8 +376,16 @@
     background-color: #dfd0b8;
   }
 
+  .object-cover {
+    object-fit: cover;
+  }
+
   .p-2 {
     padding: calc(var(--spacing) * 2);
+  }
+
+  .p-3 {
+    padding: calc(var(--spacing) * 3);
   }
 
   .p-4 {
@@ -425,6 +479,10 @@
     color: var(--color-red-400);
   }
 
+  .text-white {
+    color: var(--color-white);
+  }
+
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -442,6 +500,12 @@
   }
 
   @media (hover: hover) {
+    .hover\:bg-\[\#008C9E\]:hover {
+      background-color: #008c9e;
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:bg-\[\#b8aa96\]:hover {
       background-color: #b8aa96;
     }
@@ -455,6 +519,12 @@
 
   .disabled\:opacity-50:disabled {
     opacity: .5;
+  }
+
+  @media (width >= 48rem) {
+    .md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 }
 

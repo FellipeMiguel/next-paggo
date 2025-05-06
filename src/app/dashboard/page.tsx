@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,7 +11,7 @@ import { DocumentList } from "@/components/DocumentList";
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [refreshDocuments, setRefreshDocuments] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (status !== "loading" && !session) {
@@ -26,10 +25,10 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#222831] text-[#DFD0B8]">
       <Header />
-      <section className="max-w-3xl mx-auto p-6">
+      <section className="max-w-5xl mx-auto p-6">
         <h2 className="text-2xl font-bold mb-4">Seus Documentos</h2>
-        <UploadForm onUploadSuccess={() => setRefreshDocuments((prev) => prev + 1)} />
-        <DocumentList refreshKey={refreshDocuments} />
+        <UploadForm onUploadSuccess={() => setRefreshKey((prev) => prev + 1)} />
+        <DocumentList refreshKey={refreshKey} />
       </section>
     </main>
   );
