@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
+import Image from "next/image";
+import axios from "axios";
 import { getSession, signOut } from "next-auth/react";
 import toast from "react-hot-toast";
 
@@ -29,6 +31,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
     if (!file) {
       setError("Selecione um arquivo antes de enviar.");
       toast.error("Selecione um arquivo antes de enviar.");
@@ -56,40 +59,42 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       form.append("name", documentName);
       form.append("file", file);
 
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 200);
-
-      const res = await fetch("http://localhost:3001/ocr/upload", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-
-      clearInterval(progressInterval);
-      setProgress(100);
-
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.message || res.statusText);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("NEXT_PUBLIC_API_URL não definido");
       }
+
+      // Realiza o upload sem atribuir a variável desnecessária
+      await axios.post(`${apiUrl}/ocr/upload`, form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentage = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total || 1)
+          );
+          setProgress(percentage);
+        },
+      });
 
       setStatus("success");
       toast.success("Upload realizado com sucesso!");
       setFile(null);
       setPreviewUrl(null);
       setDocumentName("");
-      onUploadSuccess && onUploadSuccess();
-    } catch (err: any) {
-      setError(err.message || "Erro ao enviar arquivo.");
+      onUploadSuccess?.();
+    } catch (err: unknown) {
+      let errorMessage = "Erro ao enviar arquivo.";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "object" && err !== null && "response" in err) {
+        const errorObj = err as { response?: { data?: { message?: string } } };
+        errorMessage = errorObj.response?.data?.message || errorMessage;
+      }
+      setError(errorMessage);
       setStatus("error");
-      toast.error(err.message || "Erro ao enviar arquivo.");
+      toast.error(errorMessage);
     }
   }
 
@@ -120,9 +125,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
             <p className="text-sm text-[#DFD0B8] font-semibold">
               Pré-visualização:
             </p>
-            <img
+            <Image
               src={previewUrl}
               alt="Pré-visualização da imagem"
+              width={192}
+              height={192}
               className="mt-2 w-48 h-48 object-cover border rounded shadow mx-auto"
             />
           </div>
@@ -157,7 +164,9 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       )}
 
       {status === "success" && (
-        <p className="mt-3 text-green-400">Upload do arquivo realizado com sucesso!</p>
+        <p className="mt-3 text-green-400">
+          Upload do arquivo realizado com sucesso!
+        </p>
       )}
       {status === "error" && error && (
         <p className="mt-3 text-red-400">Erro: {error}</p>

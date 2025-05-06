@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import axios from "axios";
 
 type ExplainSectionProps = {
   docId: number;
@@ -16,8 +17,8 @@ export function ExplainSection({ docId }: ExplainSectionProps) {
   const { data: session } = useSession();
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -39,27 +40,37 @@ export function ExplainSection({ docId }: ExplainSectionProps) {
       }
 
       const numericId = Number(docId);
-
-      const res = await fetch("http://localhost:3001/ocr/explain", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id: numericId, query }),
-      });
-
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.message || "Erro na requisição");
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("NEXT_PUBLIC_API_URL não definido");
       }
 
-      const data: { explanation: string } = await res.json();
+      const response = await axios.post(
+        `${apiUrl}/ocr/explain`,
+        { id: numericId, query },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setMessages([...messages, { question: query, answer: data.explanation }]);
+      const data: { explanation: string } = response.data;
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { question: query, answer: data.explanation },
+      ]);
       setQuery("");
-    } catch (err: any) {
-      setError(err.message || "Erro ao obter explicação.");
+    } catch (err: unknown) {
+      let errorMessage = "Erro ao obter explicação.";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "object" && err !== null && "response" in err) {
+        const errorObj = err as { response?: { data?: { message?: string } } };
+        errorMessage = errorObj.response?.data?.message || errorMessage;
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -100,7 +111,6 @@ export function ExplainSection({ docId }: ExplainSectionProps) {
             handleExplain();
           }
         }}
-      
       />
       <button
         onClick={handleExplain}

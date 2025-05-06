@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { ExplainSection } from "./ExplainSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { PulseLoader } from "react-spinners";
 import { jsPDF } from "jspdf";
+import axios from "axios";
 
 interface Document {
   id: number;
@@ -29,101 +30,125 @@ export function DocumentList({ refreshKey }: DocumentListProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
-  const fetchDocuments = async (page: number, search: string) => {
-    setLoading(true);
-    try {
-      if (!session?.user?.accessToken) {
-        setError("Token de acesso não encontrado.");
-        setLoading(false);
-        return;
-      }
-
-      const queryParams = new URLSearchParams();
-      queryParams.append("page", page.toString());
-      if (search) {
-        queryParams.append("search", search);
-      }
-
-      const res = await fetch(
-        `http://localhost:3001/ocr/list?${queryParams.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.user.accessToken}`,
-          },
+  const fetchDocuments = useCallback(
+    async (page: number, search: string) => {
+      setLoading(true);
+      try {
+        if (!session?.user?.accessToken) {
+          setError("Token de acesso não encontrado.");
+          setLoading(false);
+          return;
         }
-      );
 
-      if (!res.ok) {
-        const errorBody = await res.json();
-        throw new Error(errorBody.message || "Erro na requisição");
+        const queryParams = new URLSearchParams();
+        queryParams.append("page", page.toString());
+        if (search) {
+          queryParams.append("search", search);
+        }
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (!apiUrl) {
+          throw new Error("NEXT_PUBLIC_API_URL não definido");
+        }
+
+        const response = await axios.get(
+          `${apiUrl}/ocr/list?${queryParams.toString()}`,
+          {
+            headers: { Authorization: `Bearer ${session.user.accessToken}` },
+          }
+        );
+
+        const data = response.data;
+        setDocuments(data.documents);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+      } catch (err: unknown) {
+        let errorMessage = "Erro ao carregar documentos";
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (
+          typeof err === "object" &&
+          err !== null &&
+          "response" in err
+        ) {
+          const errorObj = err as {
+            response?: { data?: { message?: string } };
+          };
+          errorMessage = errorObj.response?.data?.message || errorMessage;
+        }
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
       }
-
-      const data = await res.json();
-      setDocuments(data.documents);
-      setTotalPages(data.totalPages);
-      setCurrentPage(data.currentPage);
-    } catch (err: any) {
-      setError(err.message || "Erro ao carregar documentos");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [session]
+  );
 
   useEffect(() => {
     fetchDocuments(currentPage, searchTerm);
-  }, [session, refreshKey, currentPage, searchTerm]);
+  }, [fetchDocuments, currentPage, searchTerm, refreshKey]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
   };
 
-const downloadDocument = (doc: Document) => {
-  const pdf = new jsPDF();  
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  let yPosition = margin;
+  const downloadDocument = (doc: Document) => {
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    let yPosition = margin;
 
-  const addTextWithPageBreak = (textLines: string[]) => {
-    textLines.forEach((line) => {
-      if (yPosition > pageHeight - margin) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-      pdf.text(line, margin, yPosition);
-      yPosition += 10;
-    });
+    const addTextWithPageBreak = (textLines: string[]) => {
+      textLines.forEach((line) => {
+        if (yPosition > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+        pdf.text(line, margin, yPosition);
+        yPosition += 10;
+      });
+    };
+
+    pdf.setFontSize(16);
+    pdf.text(`Nome: ${doc.name || "Sem nome"}`, margin, yPosition);
+    yPosition += 10;
+
+    pdf.setFontSize(12);
+    pdf.text(
+      `Data: ${new Date(doc.createdAt).toLocaleString()}`,
+      margin,
+      yPosition
+    );
+    yPosition += 10;
+
+    pdf.text(`Arquivo: ${doc.fileUrl}`, margin, yPosition);
+    yPosition += 10;
+
+    pdf.text("Texto Extraído:", margin, yPosition);
+    yPosition += 10;
+    const extractedLines = pdf.splitTextToSize(
+      doc.text,
+      pageWidth - 2 * margin
+    );
+    addTextWithPageBreak(extractedLines);
+
+    if (yPosition > pageHeight - margin) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+    pdf.text("Interações:", margin, yPosition);
+    yPosition += 10;
+    const interactionsText = doc.interactions ?? "Sem interações";
+    const interactionLines = pdf.splitTextToSize(
+      interactionsText,
+      pageWidth - 2 * margin
+    );
+    addTextWithPageBreak(interactionLines);
+
+    pdf.save(`${doc.name || "documento"}.pdf`);
   };
-
-  pdf.setFontSize(16);
-  pdf.text(`Nome: ${doc.name || "Sem nome"}`, margin, yPosition);
-  yPosition += 10;
-
-  pdf.setFontSize(12);
-  pdf.text(`Data: ${new Date(doc.createdAt).toLocaleString()}`, margin, yPosition);
-  yPosition += 10;
-
-  pdf.text(`Arquivo: ${doc.fileUrl}`, margin, yPosition);
-  yPosition += 10;
-
-  pdf.text("Texto Extraído:", margin, yPosition);
-  yPosition += 10;
-  const extractedLines = pdf.splitTextToSize(doc.text, pageWidth - 2 * margin);
-  addTextWithPageBreak(extractedLines);
-
-  if (yPosition > pageHeight - margin) {
-    pdf.addPage();
-    yPosition = margin;
-  }
-  pdf.text("Interações:", margin, yPosition);
-  yPosition += 10;
-  const interactionsText = doc.interactions ?? "Sem interações";
-  const interactionLines = pdf.splitTextToSize(interactionsText, pageWidth - 2 * margin);
-  addTextWithPageBreak(interactionLines);
-
-  pdf.save(`${doc.name || "documento"}.pdf`);
-};
 
   return (
     <div className="mt-6">

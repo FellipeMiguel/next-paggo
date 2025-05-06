@@ -1,8 +1,11 @@
-// pages/api/auth/[...nextauth].ts (ou no local onde o NextAuth é configurado)
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET } from "@/config/env";
+import {
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  NEXTAUTH_SECRET,
+} from "@/config/env";
 
 export const authOptions: NextAuthOptions = {
   providers: [
