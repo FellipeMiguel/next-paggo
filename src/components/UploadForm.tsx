@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { getSession, signOut } from "next-auth/react";
+import toast from "react-hot-toast";
 
 type UploadFormProps = {
   onUploadSuccess?: () => void;
@@ -11,8 +12,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [documentName, setDocumentName] = useState("");
-  const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0);
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     setError(null);
@@ -27,19 +31,23 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     e.preventDefault();
     if (!file) {
       setError("Selecione um arquivo antes de enviar.");
+      toast.error("Selecione um arquivo antes de enviar.");
       return;
     }
     if (!documentName.trim()) {
       setError("Defina um nome para o documento.");
+      toast.error("Defina um nome para o documento.");
       return;
     }
     setStatus("uploading");
+    setProgress(0);
 
     try {
       const session = await getSession();
       const token = session?.user?.accessToken;
       if (!token) {
         setError("Token de acesso não encontrado.");
+        toast.error("Token de acesso não encontrado.");
         signOut();
         return;
       }
@@ -48,11 +56,24 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       form.append("name", documentName);
       form.append("file", file);
 
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
       const res = await fetch("http://localhost:3001/ocr/upload", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
+
+      clearInterval(progressInterval);
+      setProgress(100);
 
       if (!res.ok) {
         const body = await res.json();
@@ -60,22 +81,27 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       }
 
       setStatus("success");
+      toast.success("Upload realizado com sucesso!");
       setFile(null);
       setPreviewUrl(null);
-      setDocumentName(""); // Reseta o campo nome após o upload
+      setDocumentName("");
       onUploadSuccess && onUploadSuccess();
     } catch (err: any) {
       setError(err.message || "Erro ao enviar arquivo.");
       setStatus("error");
+      toast.error(err.message || "Erro ao enviar arquivo.");
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 p-4 bg-[#393E46] rounded text-center">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-6 p-4 bg-[#393E46] rounded text-center"
+    >
       <label className="block mb-2 text-[#DFD0B8] font-semibold">
         Selecione uma imagem (JPG/PNG ≤ 5MB)
       </label>
-      
+
       <div className="flex justify-center">
         <label className="cursor-pointer px-4 py-2 bg-[#948979] text-[#222831] rounded hover:bg-[#b8aa96] transition">
           Escolher Arquivo
@@ -91,7 +117,9 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       {previewUrl && (
         <>
           <div className="mt-4 text-center">
-            <p className="text-sm text-[#DFD0B8] font-semibold">Pré-visualização:</p>
+            <p className="text-sm text-[#DFD0B8] font-semibold">
+              Pré-visualização:
+            </p>
             <img
               src={previewUrl}
               alt="Pré-visualização da imagem"
@@ -99,7 +127,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
             />
           </div>
 
-          {/* Input para o nome do documento, exibido somente se houver um arquivo */}
           <div className="mt-4">
             <input
               type="text"
@@ -120,8 +147,17 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         {status === "uploading" ? "Enviando..." : "Enviar Documento"}
       </button>
 
+      {status === "uploading" && (
+        <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
+          <div
+            className="bg-blue-600 h-4 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+
       {status === "success" && (
-        <p className="mt-3 text-green-400">Upload realizado com sucesso!</p>
+        <p className="mt-3 text-green-400">Upload do arquivo realizado com sucesso!</p>
       )}
       {status === "error" && error && (
         <p className="mt-3 text-red-400">Erro: {error}</p>

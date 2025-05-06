@@ -84,7 +84,6 @@ function HomePage() {
     _s();
     const { data: session, status } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSession"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
-    // Redireciona para a dashboard após a renderização caso a sessão exista.
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "HomePage.useEffect": ()=>{
             if (session) {
@@ -100,30 +99,29 @@ function HomePage() {
             children: "Carregando..."
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 20,
+            lineNumber: 19,
             columnNumber: 12
         }, this);
     }
-    // Se houver sessão, o redirecionamento está sendo gerenciado no useEffect
     if (session) {
         return null;
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
         className: "flex items-center justify-center min-h-screen bg-[#222831]",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "bg-[#393E46] text-[#DFD0B8] p-8 rounded-lg shadow-lg text-center",
+            className: "bg-[#393E46] text-[#DFD0B8] p-10 rounded-2xl shadow-2xl text-center space-y-6",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                    className: "text-3xl font-bold mb-4",
-                    children: "Bem-vindo ao Paggo OCR"
+                    className: "text-4xl md:text-5xl font-extrabold tracking-wide",
+                    children: "Bem-vindo ao Pagguinho"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 31,
+                    lineNumber: 29,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                    className: "mb-6 text-[#948979]",
-                    children: "Faça login para continuar"
+                    className: "text-lg md:text-xl",
+                    children: "Faça login para acessar a melhor experiência de OCR!"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
                     lineNumber: 32,
@@ -131,18 +129,18 @@ function HomePage() {
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$AuthButton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AuthButton"], {}, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 33,
+                    lineNumber: 35,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 30,
+            lineNumber: 28,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 29,
+        lineNumber: 27,
         columnNumber: 5
     }, this);
 }

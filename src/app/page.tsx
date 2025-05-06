@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AuthButton } from "@/components/AuthButton";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Redireciona para a dashboard após a renderização caso a sessão exista.
   useEffect(() => {
     if (session) {
       router.push("/dashboard");
@@ -17,21 +18,29 @@ export default function HomePage() {
   }, [session, router]);
 
   if (status === "loading") {
-    return <p>Carregando...</p>;
+    return <LoadingSpinner />;
   }
 
-  // Se houver sessão, o redirecionamento está sendo gerenciado no useEffect
   if (session) {
     return null;
   }
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-[#222831]">
-      <div className="bg-[#393E46] text-[#DFD0B8] p-8 rounded-lg shadow-lg text-center">
-        <h1 className="text-3xl font-bold mb-4">Bem-vindo ao Paggo OCR</h1>
-        <p className="mb-6 text-[#948979]">Faça login para continuar</p>
+      <motion.div
+        className="bg-[#393E46] text-[#DFD0B8] p-10 rounded-2xl shadow-2xl text-center space-y-6"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-wide">
+          Bem-vindo ao Pagguinho
+        </h1>
+        <p className="text-lg md:text-xl">
+          Faça login para acessar a melhor experiência de OCR!
+        </p>
         <AuthButton />
-      </div>
+      </motion.div>
     </main>
   );
 }
