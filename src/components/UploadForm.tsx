@@ -104,7 +104,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       className="mb-6 p-4 bg-[#393E46] rounded text-center"
     >
       <label className="block mb-2 text-[#DFD0B8] font-semibold">
-        Selecione a Imagem do Documento para o Pagguino analisar (JPG/PNG ≤ 5MB)
+        Selecione a Imagem da Fatura para o Pagguino analisar (JPG/PNG ≤ 5MB)
       </label>
 
       <div className="flex justify-center">
