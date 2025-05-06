@@ -21,6 +21,7 @@ export function DocumentList({ refreshKey }: DocumentListProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchDocuments() {
@@ -34,12 +35,10 @@ export function DocumentList({ refreshKey }: DocumentListProps) {
             Authorization: `Bearer ${session.user.accessToken}`,
           },
         });
-
         if (!res.ok) {
           const errorBody = await res.json();
           throw new Error(errorBody.message || "Erro na requisição");
         }
-
         const data = await res.json();
         setDocuments(data);
       } catch (error: any) {
@@ -48,9 +47,12 @@ export function DocumentList({ refreshKey }: DocumentListProps) {
         setLoading(false);
       }
     }
-
     fetchDocuments();
   }, [session, refreshKey]);
+
+  const filteredDocuments = documents.filter((doc) =>
+    (doc.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) return <p>Carregando documentos...</p>;
   if (error) return <p className="text-red-400">Erro: {error}</p>;
@@ -58,18 +60,28 @@ export function DocumentList({ refreshKey }: DocumentListProps) {
   return (
     <div className="mt-6">
       <h2 className="text-2xl font-bold mb-4">Histórico de Documentos</h2>
-      {documents.length === 0 ? (
+      
+      <div className="mb-4 w-[100%]">
+        <input
+          type="text"
+          placeholder="Pesquisar documento..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="p-2 border rounded w-full"
+        />
+      </div>
+      
+      {filteredDocuments.length === 0 ? (
         <p>Nenhum documento encontrado.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {documents.map((doc) => (
+          {filteredDocuments.map((doc) => (
             <div key={doc.id} className="w-full p-6 border rounded bg-[#393E46]">
               <p>
                 <strong>Nome:</strong> {doc.name || "Sem nome"}
               </p>
               <p>
-                <strong>Data:</strong>{" "}
-                {new Date(doc.createdAt).toLocaleString()}
+                <strong>Data:</strong> {new Date(doc.createdAt).toLocaleString()}
               </p>
               <p>
                 <strong>Arquivo:</strong> {doc.fileUrl}
