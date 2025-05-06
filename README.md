@@ -11,8 +11,7 @@ Este é o frontend do **Paggo OCR**, uma aplicação que permite o upload, anál
 - [Scripts Disponíveis](#scripts-disponíveis)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
-- [Contribuição](#contribuição)
-- [Licença](#licença)
+- [Deploy](#Deploy)
 
 ---
 
@@ -113,3 +112,7 @@ Certifique-se de ter as seguintes ferramentas instaladas:
 - **Framer Motion**: Biblioteca para animações e transições em React.
 - **react-hot-toast**: Biblioteca para exibição de notificações de feedback ao usuário.
 - **react-spinners**: Componentes de carregamento visual para melhorar a experiência do usuário.
+
+## Deploy
+
+Acesse o protótipo em [https://pagguinho.vercel.app/](https://pagguinho.vercel.app/)
